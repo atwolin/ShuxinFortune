@@ -1,0 +1,15 @@
+{
+    "name": "shuxin-fortune-frontend",
+    "version": "1.0.0",
+    "private": true,
+    "description": "舒心好運籤 - 前端靜態檔案",
+    "scripts": {
+        "format": "prettier --write '**/*.{html,css,js}'",
+        "format:check": "prettier --check '**/*.{html,css,js}'",
+        "lint": "eslint '**/*.js' --fix"
+    },
+    "devDependencies": {
+        "prettier": "^3.4.2",
+        "eslint": "^9.18.0"
+    }
+}
