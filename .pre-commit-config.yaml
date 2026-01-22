@@ -27,10 +27,11 @@ repos:
     hooks:
       - id: pyright
         name: pyright
-        entry: pyright
+        entry: bash -c 'cd backend && poetry run pyright'
         language: system
         types: [python]
-        pass_filenames: true
+        files: ^backend/
+        pass_filenames: false
 
   # Frontend - Prettier
   - repo: local
