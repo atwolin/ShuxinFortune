@@ -215,9 +215,8 @@ __marimo__/
 
 # ===== Project-Specific Ignores =====
 
-# Django data directory (SQLite database)
-backend/data/
-backend/staticfiles/
+data/
+!backend/data/
 
 # macOS
 .DS_Store
