@@ -1,0 +1,118 @@
+#cloud-config
+
+# This cloud-init configuration sets up a Container-Optimized OS VM
+# to run Docker Compose via a sidecar container approach.
+# The docker:latest image runs docker-compose and controls the host Docker daemon
+# via the mounted /var/run/docker.sock socket.
+
+write_files:
+  # Docker Compose configuration file
+  - path: /home/compose/docker-compose.yaml
+    permissions: 0644
+    owner: root
+    content: |
+      services:
+        backend:
+          build:
+            context: https://github.com/atwolin/ShuxinFortune.git#main:backend
+            dockerfile: Dockerfile.prod
+          env_file:
+            - .env
+          volumes:
+            - backend_data:/app/data
+            - backend_static:/app/staticfiles
+          ports:
+            - "8000:8000"
+          networks:
+            - fortune
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8000/admin/login/"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+        frontend:
+          build:
+            context: https://github.com/atwolin/ShuxinFortune.git#main:frontend
+            dockerfile: Dockerfile
+          ports:
+            - "80:80"
+          networks:
+            - fortune
+          depends_on:
+            backend:
+              condition: service_healthy
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 10s
+
+      networks:
+        fortune:
+          driver: bridge
+
+      volumes:
+        backend_data:
+        backend_static:
+
+  # Environment variables file
+  - path: /home/compose/.env
+    permissions: 0600
+    owner: root
+    content: |
+      # ======================
+      # Django Backend Settings
+      # ======================
+
+      # SECURITY WARNING: Replace with your actual secret key
+      # Generate: python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+      DJANGO_SECRET_KEY=REPLACE_WITH_YOUR_SECRET_KEY
+
+      DJANGO_DEBUG=False
+      DJANGO_ALLOWED_HOSTS=34.132.123.85
+
+      # ======================
+      # CORS Settings
+      # ======================
+
+      DJANGO_CORS_ALLOWED_ORIGINS=http://34.132.123.85
+      DJANGO_CORS_ALLOW_CREDENTIALS=True
+
+      # ======================
+      # Database Settings
+      # ======================
+
+      DJANGO_DATABASE_URL=sqlite:///data/db.sqlite3
+
+      # ======================
+      # Security Settings (Production)
+      # ======================
+
+      # DJANGO_SECURE_SSL_REDIRECT=True
+      # DJANGO_SESSION_COOKIE_SECURE=True
+      # DJANGO_CSRF_COOKIE_SECURE=True
+      # DJANGO_SECURE_HSTS_SECONDS=2592000
+      # DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+      # DJANGO_SECURE_HSTS_PRELOAD=True
+
+      # ======================
+      # Security Settings (Development)
+      # ======================
+
+      DJANGO_SECURE_SSL_REDIRECT=False
+      DJANGO_SESSION_COOKIE_SECURE=Flase
+      DJANGO_CSRF_COOKIE_SECURE=Flase
+      DJANGO_SECURE_HSTS_SECONDS=0
+      DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=Flase
+      DJANGO_SECURE_HSTS_PRELOAD=False
+
+runcmd:
+  # Ensure /home/compose directory has proper permissions
+  - chmod 755 /home/compose
+  - chmod 644 /home/compose/docker-compose.yaml
+  - chmod 600 /home/compose/.env
