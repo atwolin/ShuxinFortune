@@ -1,0 +1,52 @@
+# Security settings (HTTPS/Debug=False) and secrets are configured via .env file
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - backend_data:/app/data
+      - backend_static:/app/staticfiles
+    ports:
+      - "8000:8000"
+    networks:
+      - fortune
+    # restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/login/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+    networks:
+      - fortune
+    depends_on:
+      backend:
+        condition: service_healthy
+    # restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  fortune:
+    driver: bridge
+
+volumes:
+  backend_data:
+  backend_static:
