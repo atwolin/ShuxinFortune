@@ -1,0 +1,187 @@
+[x-cloak] {
+    display: none !important;
+}
+
+/* Custom Animations for 舒心好運籤 */
+
+/* Shake Animation for Fortune Container */
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    10% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+
+    20% {
+        transform: translateX(5px) rotate(2deg);
+    }
+
+    30% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+
+    40% {
+        transform: translateX(5px) rotate(2deg);
+    }
+
+    50% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+
+    60% {
+        transform: translateX(5px) rotate(2deg);
+    }
+
+    70% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+
+    80% {
+        transform: translateX(5px) rotate(2deg);
+    }
+
+    90% {
+        transform: translateX(-3px) rotate(-1deg);
+    }
+}
+
+.animate-shake {
+    animation: shake 0.8s ease-in-out;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+/* Delayed Fade In for subtitle */
+@keyframes fadeInDelay {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    50% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInDelay {
+    animation: fadeInDelay 2s ease-out forwards;
+}
+
+/* Stick Slide Up Animation */
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.stick-animate {
+    animation: slideUp 1s ease-out forwards;
+}
+
+/* Fortune Slip Glow Effect */
+@keyframes glow {
+    0%,
+    100% {
+        filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6));
+    }
+}
+
+.fortune-glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* Smooth transition for all elements */
+* {
+    transition-timing-function: ease-in-out;
+}
+
+/* Body background fallback */
+body {
+    background: linear-gradient(135deg, #8b0000 0%, #4a0404 50%, #2d0202 100%);
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(139, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #d4af37, #b8860b);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ffd700, #d4af37);
+}
+
+/* Floating animation for container */
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse glow for click instruction */
+@keyframes pulseGlow {
+    0%,
+    100% {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    50% {
+        text-shadow:
+            0 0 20px rgba(255, 255, 255, 0.6),
+            0 0 30px rgba(212, 175, 55, 0.4);
+    }
+}
+
+.animate-pulse {
+    animation: pulseGlow 2s ease-in-out infinite;
+}

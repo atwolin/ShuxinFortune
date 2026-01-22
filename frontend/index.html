@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>舒心好運籤</title>
+        <meta name="description" content="舒心好運籤 - 給正在努力的你：你不孤單。" />
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- Alpine.js -->
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+        <!-- Custom Styles -->
+        <link rel="stylesheet" href="styles.css" />
+
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            "serif-tc": ["Noto Serif TC", "serif"],
+                        },
+                        colors: {
+                            "fortune-red": "#8B0000",
+                            "fortune-gold": "#D4AF37",
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+
+    <body
+        class="min-h-screen font-serif-tc overflow-hidden"
+        x-data="fortuneApp()"
+        x-init="startIntro()"
+    >
+        <!-- Background -->
+        <div class="fixed inset-0 z-0">
+            <img src="assets/background.png" alt="背景" class="w-full h-full object-cover" />
+            <div
+                class="absolute inset-0 transition-colors duration-1000"
+                :class="phase === 'intro' ? 'bg-gray-900/60' : 'bg-gray-500/30'"
+            ></div>
+        </div>
+
+        <!-- Navigation -->
+        <nav
+            x-cloak
+            x-show="phase !== 'intro'"
+            x-transition:enter="transition ease-out duration-1000"
+            x-transition:enter-start="opacity-0 -translate-y-full"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="absolute top-0 w-full z-50 bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm shadow-lg"
+        >
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <h1
+                    class="text-2xl md:text-3xl font-bold text-fortune-gold text-center tracking-wider"
+                >
+                    舒心好運籤
+                </h1>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="relative z-10 flex flex-col items-center justify-center min-h-screen">
+            <!-- Intro Section -->
+            <div
+                x-show="phase === 'intro'"
+                x-transition:leave="transition ease-in duration-1000"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-20"
+            >
+                <h2
+                    class="text-4xl md:text-6xl font-bold text-fortune-gold drop-shadow-lg mb-6 animate-fadeIn"
+                >
+                    舒心好運籤
+                </h2>
+                <p class="text-xl md:text-2xl text-white/90 drop-shadow-md animate-fadeInDelay">
+                    給正在努力的你：你不孤單。
+                </p>
+            </div>
+
+            <!-- Fortune Container Section -->
+            <div
+                x-show="phase !== 'intro' && phase !== 'fortune'"
+                x-transition:enter="transition ease-out duration-1000"
+                x-transition:enter-start="opacity-0 scale-90"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="relative cursor-pointer select-none"
+                :class="{ 'animate-shake': isShaking }"
+                @click="drawFortune()"
+            >
+                <!-- Sticks in container -->
+                <div class="relative">
+                    <!-- Drawing Box -->
+                    <img
+                        src="assets/drawing_box.png"
+                        alt="籤筒"
+                        class="w-28 md:w-40 lg:w-56 h-auto relative z-20"
+                    />
+
+                    <!-- One Stick (slides out) -->
+                    <img
+                        x-show="showStick"
+                        x-transition:enter="transition ease-out duration-1000"
+                        x-transition:enter-start="translate-y-full opacity-0"
+                        x-transition:enter-end="translate-y-0 opacity-100"
+                        src="assets/one_stick.png"
+                        alt="抽中的籤"
+                        class="absolute w-5 md:w-8 lg:w-10 h-auto z-30 stick-animate"
+                        style="top: -100%; left: 50%; transform: translateX(-50%)"
+                    />
+                </div>
+
+                <!-- Instruction text -->
+                <p
+                    x-show="!isShaking && !showStick"
+                    class="absolute top-full left-1/2 -translate-x-1/2 text-center text-white/80 mt-6 text-lg animate-pulse whitespace-nowrap"
+                >
+                    點擊籤筒抽籤
+                </p>
+            </div>
+
+            <!-- Fortune Slip Section -->
+            <div
+                x-show="phase === 'fortune'"
+                x-transition:enter="transition ease-out duration-1500"
+                x-transition:enter-start="opacity-0 scale-75"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="relative flex flex-col items-center"
+            >
+                <div class="relative">
+                    <img
+                        src="assets/fortune_slip.png"
+                        alt="籤詩"
+                        class="w-40 md:w-56 lg:w-80 max-w-2xl h-auto drop-shadow-2xl"
+                    />
+
+                    <!-- Fortune Text Overlay -->
+                    <div
+                        class="absolute inset-0 flex flex-col items-center justify-center px-12 py-6 md:px-20 md:py-12 lg:px-24 lg:py-16"
+                    >
+                        <p
+                            class="text-xl md:text-2xl text-gray-800 leading-relaxed font-medium [writing-mode:vertical-rl]"
+                            x-text="fortuneText"
+                        ></p>
+                    </div>
+                </div>
+
+                <!-- Draw Again Button -->
+                <button
+                    @click="resetFortune()"
+                    class="mt-8 px-8 py-3 bg-gradient-to-r from-red-800 to-red-700 text-fortune-gold font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                    再抽一次
+                </button>
+            </div>
+        </main>
+
+        <script>
+            function fortuneApp() {
+                return {
+                    phase: "intro", // 'intro' | 'container' | 'shaking' | 'stickOut' | 'fortune'
+                    isShaking: false,
+                    showStick: false,
+                    fortuneText: "",
+                    fortuneCategory: "",
+                    isLoading: false,
+                    error: null,
+                    shakeAudio: null,
+
+                    init() {
+                        this.shakeAudio = new Audio("audio/shake.mp3");
+                        this.shakeAudio.loop = true; // Loop while shaking
+                    },
+
+                    // API base URL - adjust based on environment
+                    get apiBaseUrl() {
+                        // When running via Docker, frontend is at :8080, backend at :8000
+                        return "http://localhost:8000/api";
+                    },
+
+                    startIntro() {
+                        // Wait for intro to display, then transition to container
+                        setTimeout(() => {
+                            this.phase = "container";
+                        }, 3000);
+                    },
+
+                    async drawFortune() {
+                        if (this.isShaking || this.showStick || this.isLoading) return;
+
+                        // Start shaking
+                        this.isShaking = true;
+                        this.isLoading = true;
+                        this.error = null;
+
+                        // Play sound
+                        try {
+                            this.shakeAudio.currentTime = 0;
+                            this.shakeAudio
+                                .play()
+                                .catch((e) => console.log("Audio play failed:", e));
+                        } catch (e) {
+                            console.log("Audio error:", e);
+                        }
+
+                        try {
+                            // Fetch fortune from backend API
+                            const response = await fetch(`${this.apiBaseUrl}/draw/`);
+
+                            if (!response.ok) {
+                                throw new Error("無法取得籤詩");
+                            }
+
+                            const data = await response.json();
+                            this.fortuneText = data.message;
+                            this.fortuneCategory = data.category;
+                        } catch (err) {
+                            console.error("Error fetching fortune:", err);
+                            this.error = "抽籤失敗，請稍後再試";
+                            // Fallback fortune if API fails
+                            this.fortuneText = "穩定前行，好運將至。\n保持耐心，機會就在轉角。";
+                        } finally {
+                            this.isLoading = false;
+                        }
+
+                        // After shaking, show stick
+                        setTimeout(() => {
+                            this.isShaking = false;
+                            this.shakeAudio.pause(); // Stop sound
+                            this.shakeAudio.currentTime = 0;
+
+                            this.showStick = true;
+                            this.phase = "stickOut";
+
+                            // After stick animation, show fortune slip
+                            setTimeout(() => {
+                                this.phase = "fortune";
+                            }, 1200);
+                        }, 1000); // Shaking duration
+                    },
+
+                    resetFortune() {
+                        this.phase = "container";
+                        this.isShaking = false;
+                        this.showStick = false;
+                        this.fortuneText = "";
+                        this.fortuneCategory = "";
+                        this.error = null;
+                    },
+                };
+            }
+        </script>
+    </body>
+</html>
