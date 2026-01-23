@@ -9,6 +9,7 @@ from .models import FortuneCategory, Fortune
 @admin.register(FortuneCategory)
 class FortuneCategoryAdmin(admin.ModelAdmin):
     list_display = ["name", "order", "is_active", "created_at"]
+    list_editable = ["is_active"]
     list_filter = ["is_active"]
     search_fields = ["name", "description"]
     ordering = ["order", "name"]
