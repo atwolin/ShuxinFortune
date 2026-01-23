@@ -186,10 +186,11 @@
                         this.shakeAudio.loop = true; // Loop while shaking
                     },
 
-                    // API base URL - adjust based on environment
+                    // API base URL - uses relative path to work through Nginx proxy
                     get apiBaseUrl() {
-                        // When running via Docker, frontend is at :8080, backend at :8000
-                        return "http://localhost:8000/api";
+                        // Use relative path so Nginx proxy handles routing to backend
+                        // Works for both HTTP and HTTPS
+                        return "/api";
                     },
 
                     startIntro() {
