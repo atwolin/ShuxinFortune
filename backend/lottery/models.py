@@ -30,7 +30,9 @@ class Fortune(models.Model):
         related_name="fortunes",
         verbose_name="Category",
     )
-    message = models.TextField("Fortune Message", validators=[MinLengthValidator(1)])
+    message = models.TextField(
+        "Fortune Message", validators=[MinLengthValidator(1)], unique=True
+    )
     is_active = models.BooleanField("Is Active", default=True)
     created_at = models.DateTimeField("Created At", auto_now_add=True)
     updated_at = models.DateTimeField("Updated At", auto_now=True)

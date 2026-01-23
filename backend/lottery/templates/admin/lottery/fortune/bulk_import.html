@@ -1,0 +1,158 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .bulk-import-form {
+        max-width: 800px;
+        margin: 20px auto;
+    }
+
+    .form-row {
+        margin-bottom: 20px;
+    }
+
+    .form-row label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-row select,
+    .form-row textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+
+    .form-row textarea {
+        min-height: 400px;
+        line-height: 1.6;
+    }
+
+    .help-text {
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .submit-row {
+        margin-top: 20px;
+        padding: 10px 0;
+        border-top: 1px solid #ddd;
+    }
+
+    .button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .default {
+        background-color: #417690;
+        color: white;
+    }
+
+    .default:hover {
+        background-color: #205067;
+    }
+
+    .instructions {
+        background-color: #f0f8ff;
+        border: 1px solid #b8d4e8;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .instructions h3 {
+        margin-top: 0;
+        color: #205067;
+    }
+
+    .instructions ul {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+
+    .instructions li {
+        margin: 5px 0;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:lottery_fortune_changelist' %}">{% trans 'Fortunes' %}</a>
+    &rsaquo; {% trans '批量導入籤詩' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bulk-import-form">
+    <div class="instructions">
+        <h3>📝 使用說明</h3>
+        <ul>
+            <li><strong>每行一條籤詩</strong>：將籤詩貼到下方文本框，每行一條</li>
+            <li><strong>自動過濾空行</strong>：系統會自動忽略空白行</li>
+            <li><strong>選擇分類</strong>：所有導入的籤詩將歸類到您選擇的分類中</li>
+            <li><strong>批量建立</strong>：點擊「開始導入」後，系統會一次性建立所有籤詩</li>
+        </ul>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <label for="category">籤詩分類 <span style="color: red;">*</span></label>
+            <select name="category" id="category" required>
+                <option value="">請選擇分類...</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <p class="help-text">選擇這批籤詩所屬的分類</p>
+        </div>
+
+        <div class="form-row">
+            <label for="fortunes_text">籤詩內容 <span style="color: red;">*</span></label>
+            <textarea name="fortunes_text" id="fortunes_text" required placeholder="請貼上籤詩，每行一條...
+
+範例：
+你已經比昨天更前進了，就算你自己沒有發現，那些累積都是真實存在的。
+你會緊張，是因為你在乎，而在乎本身就是一種很珍貴的努力。
+放心，你不是一個人走到這裡的，你身邊的每個人都和你一起努力著。"></textarea>
+            <p class="help-text">
+                每行一條籤詩，系統會自動過濾空白行。
+                <span id="line-count" style="color: #417690; font-weight: bold;"></span>
+            </p>
+        </div>
+
+        <div class="submit-row">
+            <input type="submit" value="開始導入" class="button default">
+            <a href="{% url 'admin:lottery_fortune_changelist' %}" class="button">取消</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Count lines in real-time
+    document.getElementById('fortunes_text').addEventListener('input', function () {
+        const text = this.value.trim();
+        const lines = text ? text.split('\n').filter(line => line.trim()).length : 0;
+        const countElement = document.getElementById('line-count');
+        if (lines > 0) {
+            countElement.textContent = `將導入 ${lines} 條籤詩`;
+        } else {
+            countElement.textContent = '';
+        }
+    });
+</script>
+{% endblock %}
