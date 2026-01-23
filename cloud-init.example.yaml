@@ -36,7 +36,7 @@ write_files:
         frontend:
           build:
             context: https://github.com/atwolin/ShuxinFortune.git#main:frontend
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.prod
           volumes:
             - letsencrypt:/etc/letsencrypt
             - certbot_www:/var/www/certbot
