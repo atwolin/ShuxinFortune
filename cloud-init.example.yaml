@@ -1,9 +1,8 @@
 #cloud-config
 
 # This cloud-init configuration sets up a Container-Optimized OS VM
-# to run Docker Compose via a sidecar container approach.
-# The docker:latest image runs docker-compose and controls the host Docker daemon
-# via the mounted /var/run/docker.sock socket.
+# to run Docker Compose using a pure cloud-init approach (no deprecated container startup agent).
+# Docker Compose is installed and run via systemd service.
 
 write_files:
   # Docker Compose configuration file
@@ -11,6 +10,7 @@ write_files:
     permissions: 0644
     owner: root
     content: |
+      version: '3.8'
       services:
         backend:
           build:
@@ -37,16 +37,19 @@ write_files:
           build:
             context: https://github.com/atwolin/ShuxinFortune.git#main:frontend
             dockerfile: Dockerfile
+          volumes:
+            - letsencrypt:/etc/letsencrypt
+            - certbot_www:/var/www/certbot
           ports:
             - "80:80"
+            - "443:443"
           networks:
             - fortune
           depends_on:
-            backend:
-              condition: service_healthy
+            - backend
           restart: unless-stopped
           healthcheck:
-            test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+            test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:80/"]
             interval: 30s
             timeout: 10s
             retries: 3
@@ -59,6 +62,8 @@ write_files:
       volumes:
         backend_data:
         backend_static:
+        letsencrypt:
+        certbot_www:
 
   # Environment variables file
   - path: /home/compose/.env
@@ -74,14 +79,22 @@ write_files:
       DJANGO_SECRET_KEY=REPLACE_WITH_YOUR_SECRET_KEY
 
       DJANGO_DEBUG=False
-      DJANGO_ALLOWED_HOSTS=34.132.123.85
+      DJANGO_ALLOWED_HOSTS=shuxin-fortune.duckdns.org,34.132.123.85,localhost,127.0.0.1
 
       # ======================
       # CORS Settings
       # ======================
 
-      DJANGO_CORS_ALLOWED_ORIGINS=http://34.132.123.85
+      # For production: https://your-domain.com,https://shuxin-fortune.duckdns.org
+      DJANGO_CORS_ALLOWED_ORIGINS=YOUR_ALLOWED_ORIGINS
       DJANGO_CORS_ALLOW_CREDENTIALS=True
+
+      # ======================
+      # CSRF Settings
+      # ======================
+
+      # For production: https://your-domain.com,https://shuxin-fortune.duckdns.org
+      DJANGO_CSRF_TRUSTED_ORIGINS=YOUR_TRUSTED_ORIGINS
 
       # ======================
       # Database Settings
@@ -105,14 +118,52 @@ write_files:
       # ======================
 
       DJANGO_SECURE_SSL_REDIRECT=False
-      DJANGO_SESSION_COOKIE_SECURE=Flase
-      DJANGO_CSRF_COOKIE_SECURE=Flase
+      DJANGO_SESSION_COOKIE_SECURE=False
+      DJANGO_CSRF_COOKIE_SECURE=False
       DJANGO_SECURE_HSTS_SECONDS=0
-      DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=Flase
+      DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=False
       DJANGO_SECURE_HSTS_PRELOAD=False
+
+  # Systemd service for docker-compose
+  - path: /etc/systemd/system/docker-compose-app.service
+    permissions: 0644
+    owner: root
+    content: |
+      [Unit]
+      Description=Docker Compose Application Service
+      Requires=docker.service
+      After=docker.service
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      WorkingDirectory=/home/compose
+      ExecStart=/usr/bin/docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /home/compose:/workdir \
+        -w /workdir \
+        docker/compose:latest \
+        up -d --build --remove-orphans
+      ExecStop=/usr/bin/docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v /home/compose:/workdir \
+        -w /workdir \
+        docker/compose:latest \
+        down
+
+      [Install]
+      WantedBy=multi-user.target
 
 runcmd:
   # Ensure /home/compose directory has proper permissions
   - chmod 755 /home/compose
   - chmod 644 /home/compose/docker-compose.yaml
   - chmod 600 /home/compose/.env
+
+  # Pull docker-compose image to speed up first start
+  - docker pull docker/compose:latest
+
+  # Enable and start the docker-compose service
+  - systemctl daemon-reload
+  - systemctl enable docker-compose-app.service
+  - systemctl start docker-compose-app.service
