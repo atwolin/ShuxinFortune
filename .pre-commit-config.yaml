@@ -19,9 +19,11 @@ repos:
     hooks:
       # Run the linter
       - id: ruff-check
-        arg: [--fix]
+        args: [--fix]
+        exclude: '.*/migrations/.*'
       # Run the formatter
       - id: ruff-format
+        exclude: '.*/migrations/.*'
 
   # Pyright
   - repo: local
