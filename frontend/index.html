@@ -47,7 +47,14 @@
     >
         <!-- Background -->
         <div class="fixed inset-0 z-0">
-            <img src="assets/background.png" alt="背景" class="w-full h-full object-cover" />
+            <picture>
+                <source media="(max-width: 768px)" srcset="assets/background_small.png" />
+                <img
+                    src="assets/background_big.png"
+                    alt="背景"
+                    class="w-full h-full object-cover"
+                />
+            </picture>
             <div
                 class="absolute inset-0 transition-colors duration-1000"
                 :class="phase === 'intro' ? 'bg-gray-900/60' : 'bg-gray-500/30'"
@@ -55,22 +62,15 @@
         </div>
 
         <!-- Navigation -->
-        <nav
-            x-cloak
-            x-show="phase !== 'intro'"
-            x-transition:enter="transition ease-out duration-1000"
-            x-transition:enter-start="opacity-0 -translate-y-full"
-            x-transition:enter-end="opacity-100 translate-y-0"
-            class="absolute top-0 w-full z-50 bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm shadow-lg"
-        >
-            <div class="max-w-7xl mx-auto px-4 py-4">
-                <h1
-                    class="text-2xl md:text-3xl font-bold text-fortune-gold text-center tracking-wider"
-                >
-                    舒心好運籤
-                </h1>
-            </div>
-        </nav>
+        <!-- <nav x-cloak x-show="phase !== 'intro'" x-transition:enter="transition ease-out duration-1000"
+        x-transition:enter-start="opacity-0 -translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
+        class="absolute top-0 w-full z-50 bg-gradient-to-r from-red-900/90 to-red-800/90 backdrop-blur-sm shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-fortune-gold text-center tracking-wider">
+                舒心好運籤
+            </h1>
+        </div>
+    </nav> -->
 
         <!-- Main Content -->
         <main class="relative z-10 flex flex-col items-center justify-center min-h-screen">
@@ -98,17 +98,16 @@
                 x-transition:enter="transition ease-out duration-1000"
                 x-transition:enter-start="opacity-0 scale-90"
                 x-transition:enter-end="opacity-100 scale-100"
-                class="relative cursor-pointer select-none"
-                :class="{ 'animate-shake': isShaking }"
+                class="relative cursor-pointer select-none translate-y-24 md:translate-y-0"
                 @click="drawFortune()"
             >
                 <!-- Sticks in container -->
-                <div class="relative">
+                <div class="relative" :class="{ 'animate-shake': isShaking }">
                     <!-- Drawing Box -->
                     <img
                         src="assets/drawing_box.png"
                         alt="籤筒"
-                        class="w-28 md:w-40 lg:w-56 h-auto relative z-20"
+                        class="w-56 md:w-40 lg:w-56 h-auto relative z-20"
                     />
 
                     <!-- One Stick (slides out) -->
@@ -119,7 +118,7 @@
                         x-transition:enter-end="translate-y-0 opacity-100"
                         src="assets/one_stick.png"
                         alt="抽中的籤"
-                        class="absolute w-5 md:w-8 lg:w-10 h-auto z-30 stick-animate"
+                        class="absolute w-12 md:w-8 lg:w-10 h-auto z-30 stick-animate"
                         style="top: -100%; left: 50%; transform: translateX(-50%)"
                     />
                 </div>
@@ -127,7 +126,7 @@
                 <!-- Instruction text -->
                 <p
                     x-show="!isShaking && !showStick"
-                    class="absolute top-full left-1/2 -translate-x-1/2 text-center text-white/80 mt-6 text-lg animate-pulse whitespace-nowrap"
+                    class="absolute left-1/2 -translate-x-1/2 text-center text-white/80 text-lg animate-pulse whitespace-nowrap bottom-full mb-6 md:bottom-auto md:top-full md:mb-0 md:mt-6"
                 >
                     點擊籤筒抽籤
                 </p>
@@ -139,18 +138,18 @@
                 x-transition:enter="transition ease-out duration-1500"
                 x-transition:enter-start="opacity-0 scale-75"
                 x-transition:enter-end="opacity-100 scale-100"
-                class="relative flex flex-col items-center"
+                class="relative flex flex-col-reverse md:flex-col items-center"
             >
                 <div class="relative">
                     <img
                         src="assets/fortune_slip.png"
                         alt="籤詩"
-                        class="w-40 md:w-56 lg:w-80 max-w-2xl h-auto drop-shadow-2xl"
+                        class="w-80 md:w-56 lg:w-80 max-w-2xl h-auto drop-shadow-2xl"
                     />
 
                     <!-- Fortune Text Overlay -->
                     <div
-                        class="absolute inset-0 flex flex-col items-center justify-center px-12 py-6 md:px-20 md:py-12 lg:px-24 lg:py-16"
+                        class="absolute top-[14%] bottom-[14%] left-[12%] right-[12%] flex flex-col items-center justify-center"
                     >
                         <p
                             class="text-xl md:text-2xl text-gray-800 leading-relaxed font-medium [writing-mode:vertical-rl]"
@@ -162,7 +161,7 @@
                 <!-- Draw Again Button -->
                 <button
                     @click="resetFortune()"
-                    class="mt-8 px-8 py-3 bg-gradient-to-r from-red-800 to-red-700 text-fortune-gold font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                    class="mb-8 md:mb-0 md:mt-8 px-8 py-3 bg-gradient-to-r from-red-800 to-red-700 text-fortune-gold font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
                     再抽一次
                 </button>
