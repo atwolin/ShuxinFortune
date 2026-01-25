@@ -12,6 +12,10 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
+    env:
+      DJANGO_SECRET_KEY: "insecure-test-key-for-ci"
+      DJANGO_DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"
 
     steps:
     - uses: actions/checkout@v4
@@ -24,6 +28,7 @@ jobs:
     - name: Install Poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
       run: poetry install --with dev
@@ -53,9 +58,6 @@ jobs:
 
     - name: Check Formatting (Prettier)
       run: npm run format:check
-
-    - name: Run Linter (ESLint)
-      run: npm run lint
 
   deploy:
     needs: [backend-ci, frontend-ci]

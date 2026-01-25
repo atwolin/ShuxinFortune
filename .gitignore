@@ -239,5 +239,5 @@ data/
 
 # Node.js
 frontend/node_modules/
-frontend/package-lock.json
+
 frontend/.npm/
