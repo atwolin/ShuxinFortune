@@ -1,6 +1,6 @@
 # 舒心好運籤 (Shuxin-Fortune)
 
-> 給正在努力的你：你不孤單 💛
+> 給正在努力的你：你不孤單
 
 一個可愛風格的抽籤網頁，透過隨機抽籤給予學生鼓勵。採用 Alpine.js + Tailwind CSS (前端) + Django (後端) 架構。
 
@@ -19,18 +19,32 @@
 │   ├── config
 │   ├── data
 │   ├── Dockerfile
+│   ├── Dockerfile.prod
 │   ├── entrypoint.sh
 │   ├── lottery
 │   ├── manage.py
 │   ├── poetry.lock
 │   ├── pyproject.toml
+│   ├── pyrightconfig.json
 │   └── staticfiles
+├── cloud-init.example.yaml
 ├── compose-prod.yaml
 ├── compose.yaml
+├── docs
+│   ├── 1-development
+│   └── 2.deployment
 ├── frontend
 │   ├── assets
+│   ├── audio
 │   ├── Dockerfile
+│   ├── Dockerfile.prod
 │   ├── index.html
+│   ├── js
+│   ├── nginx.conf
+│   ├── nginx-prod.conf
+│   ├── node_modules
+│   ├── package.json
+│   ├── package-lock.json
 │   └── styles.css
 └── README.md
 ```
@@ -40,15 +54,11 @@
 ### 前置需求
 
 - Docker
-- Docker Compose
 
 ### 啟動開發環境
 
 ```bash
 # 啟動所有服務
-docker compose up
-
-# 或在背景執行
 docker compose up -d
 
 # 初始化資料庫（首次啟動）
@@ -59,13 +69,7 @@ docker compose exec backend python manage.py createsuperuser
 **訪問應用**：
 
 - 🎋 前端抽籤頁面：<http://localhost:8080>
-- 🔧 後端管理介面：<http://localhost:8000/admin>
-
-**停止服務**：
-
-```bash
-docker compose down
-```
+- 🔧 後端管理介面：<http://localhost:8080/admin>
 
 ## 📝 使用說明
 
@@ -105,10 +109,6 @@ docker compose down
 - 前端靜態檔案由 Nginx 直接服務
 - 後端 API 透過 Gunicorn 運行
 - 前後端整合在同一域名，避免 CORS 問題
-
-## 📄 授權
-
-MIT License
 
 ## 👥 作者
 
