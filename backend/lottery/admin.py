@@ -33,6 +33,7 @@ class FortuneInline(admin.TabularInline):
 @admin.register(Fortune)
 class FortuneAdmin(admin.ModelAdmin):
     list_display = ["get_short_message", "category", "is_active", "created_at"]
+    list_editable = ["is_active"]
     list_filter = ["category", "is_active", "created_at"]
     search_fields = ["message", "category__name"]
     ordering = ["category", "-created_at"]
